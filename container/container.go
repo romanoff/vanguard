@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"os"
 )
 
 type Container struct {
@@ -16,6 +17,7 @@ type Container struct {
 	ContainerId string            `json:"container_id"`
 	Variables   map[string]string `json:"variables,omitempty"`
 	Ip          string            `json:"ip"`
+	Hostname    string            `json:"hostname"`
 	CreatedAt   time.Time         `json:"created_at,omitempty"`
 }
 
@@ -39,6 +41,10 @@ func (self *Container) Run() error {
 		return errors.New("Container is already running - " + self.ContainerId)
 	}
 	var err error
+	self.Hostname, err = os.Hostname()
+	if err != nil {
+		return err
+	}
 	self.Ip, err = ReserveIp()
 	if err != nil {
 		return err
