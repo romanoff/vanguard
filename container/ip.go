@@ -79,3 +79,20 @@ func GetByContainerId(containerId string) (*Container, error) {
 	}
 	return GetByIp(ip)
 }
+
+func GetContainers() ([]*Container, error) {
+	db := storage.GetStorage()
+	ips, err := db.Keys("10.0.1.")
+	if err != nil {
+		return nil, err
+	}
+	containers := []*Container{}
+	for _, ip := range ips {
+		container, err := GetByIp(ip + "/24")
+		if err != nil {
+			return nil, err
+		}
+		containers = append(containers, container)
+	}
+	return containers, nil
+}

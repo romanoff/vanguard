@@ -101,10 +101,6 @@ func (self *Container) Stop() error {
 	return err
 }
 
-func GetContainers() ([]*Container, error) {
-	return []*Container{}, nil
-}
-
 func GetImageId(name string, tag string) (string, error) {
 	client, err := GetDockerClient()
 	if err != nil {

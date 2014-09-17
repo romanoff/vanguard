@@ -48,3 +48,20 @@ func (self *EtcdStorage) Delete(key string) error {
 	_, err := self.client.Delete(key, true)
 	return err
 }
+
+func (self *EtcdStorage) Keys(prefix string) ([]string, error) {
+	resp, err := self.client.Get("/", false, false)
+	if err != nil {
+		return nil, err
+	}
+	keys := []string{}
+	if resp.Node == nil {
+		return keys, nil
+	}
+	for _, node := range resp.Node.Nodes {
+		if strings.HasPrefix(node.Key, "/" + prefix) {
+			keys = append(keys, node.Key)
+		}
+	}
+	return keys, nil
+}

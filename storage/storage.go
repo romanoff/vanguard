@@ -5,6 +5,7 @@ type Storage interface {
 	Get(key string) (string, error)
 	KeyPresent(key string) (bool, error)
 	Delete(key string) error
+	Keys(prefix string) ([]string, error)
 }
 
 var storage Storage
