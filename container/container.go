@@ -2,6 +2,7 @@ package container
 
 import (
 	"errors"
+	"github.com/fsouza/go-dockerclient"
 	"log"
 	"os/exec"
 	"strings"
@@ -9,13 +10,13 @@ import (
 )
 
 type Container struct {
-	Name        string
-	Tag         string
-	ImageId     string
-	ContainerId string
-	Variables   map[string]string
-	Ip          string
-	CreatedAt   time.Time
+	Name        string            `json:"name,omitempty"`
+	Tag         string            `json:"tag,omitempty"`
+	ImageId     string            `json:"image_id"`
+	ContainerId string            `json:"container_id"`
+	Variables   map[string]string `json:"variables,omitempty"`
+	Ip          string            `json:"ip"`
+	CreatedAt   time.Time         `json:"created_at,omitempty"`
 }
 
 func (self *Container) String() string {
@@ -68,6 +69,7 @@ func (self *Container) runWithWeave() error {
 	if err == nil {
 		self.ContainerId = strings.TrimSpace(string(containerId))
 		self.CreatedAt = time.Now()
+		Persist(self)
 		log.Println("Started container " + self.String())
 	}
 	return err
@@ -84,6 +86,11 @@ func (self *Container) Stop() error {
 	err = client.StopContainer(self.ContainerId, 5)
 	if err == nil {
 		FreeIp(self.Ip)
+		log.Println("Stopped container " + self.String())
+		err = client.RemoveContainer(docker.RemoveContainerOptions{ID: self.ContainerId})
+		if err != nil {
+			return err
+		}
 	}
 	return err
 }

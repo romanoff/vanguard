@@ -13,6 +13,7 @@ func main() {
 	app.Commands = []cli.Command{
 		command.NewAgentCommand(),
 		command.NewRunCommand(),
+		command.NewStopCommand(),
 	}
 	app.Run(os.Args)
 }

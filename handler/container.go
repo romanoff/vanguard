@@ -22,6 +22,19 @@ func ContainerUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 func ContainerDelete(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	containerId := params.Get(":container_id")
+	c, err := container.GetByContainerId(containerId)
+	if err != nil {
+		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
+		return
+	}
+	err = c.Stop()
+	if err != nil {
+		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
+		return
+	}
+	w.Write([]byte("{\"success\": true}"))
 }
 
 func ContainersIndex(w http.ResponseWriter, r *http.Request) {
