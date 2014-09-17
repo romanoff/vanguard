@@ -13,7 +13,7 @@ func ReserveIp() (string, error) {
 	ip := ""
 	for {
 		counter++
-		ip = "10.0.1." + strconv.Itoa(counter) + "/24"
+		ip = "10.0.1." + strconv.Itoa(counter)
 		ok, err := db.KeyPresent(ip)
 		if err != nil {
 			return "", err
@@ -34,6 +34,10 @@ func FreeIp(ip string) error {
 		return errors.New("no ip to free")
 	}
 	db := storage.GetStorage()
+	container, err := GetByIp(ip)
+	if err == nil {
+		db.Delete(container.ContainerId)
+	}
 	return db.Delete(ip)
 }
 
@@ -88,7 +92,7 @@ func GetContainers() ([]*Container, error) {
 	}
 	containers := []*Container{}
 	for _, ip := range ips {
-		container, err := GetByIp(ip + "/24")
+		container, err := GetByIp(ip)
 		if err != nil {
 			return nil, err
 		}

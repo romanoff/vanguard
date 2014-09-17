@@ -32,7 +32,7 @@ func (self *Container) String() string {
 	if name != "" {
 		name += ", "
 	}
-	name += "imageid: " + self.ImageId + ", ip: " + self.Ip
+	name += "containerid: " + self.ContainerId + ", ip: " + self.Ip
 	return name
 }
 
@@ -64,7 +64,7 @@ func (self *Container) Run() error {
 }
 
 func (self *Container) runWithWeave() error {
-	args := []string{"run", self.Ip, "-i", "-t"}
+	args := []string{"run", self.Ip + "/24", "-i", "-t"}
 	if self.Variables != nil {
 		for key, value := range self.Variables {
 			args = append(args, "-e", key+"="+value)

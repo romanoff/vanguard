@@ -14,6 +14,7 @@ func main() {
 		command.NewAgentCommand(),
 		command.NewRunCommand(),
 		command.NewStopCommand(),
+		command.NewPsCommand(),
 	}
 	app.Run(os.Args)
 }
