@@ -21,6 +21,9 @@ func NewAgentCommand() cli.Command {
 func agentCommandFunc() {
 	mux := pat.New()
 	mux.Post("/containers", http.HandlerFunc(handler.ContainerCreate))
+	mux.Put("/containers/:container_id", http.HandlerFunc(handler.ContainerUpdate))
+	mux.Del("/containers/:container_id", http.HandlerFunc(handler.ContainerDelete))
+	mux.Get("/containers", http.HandlerFunc(handler.ContainersIndex))
 	http.Handle("/", mux)
 	log.Println("Listening on port 2728")
 	http.ListenAndServe(":2728", nil)
