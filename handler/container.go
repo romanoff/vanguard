@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/romanoff/vanguard/container"
 	"net/http"
 )
@@ -38,4 +39,15 @@ func ContainerDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func ContainersIndex(w http.ResponseWriter, r *http.Request) {
+	containers, err := container.GetContainers()
+	if err != nil {
+		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
+		return
+	}
+	containersJson, err := json.Marshal(containers)
+	if err != nil {
+		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
+		return
+	}
+	w.Write(containersJson)
 }

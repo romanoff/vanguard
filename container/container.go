@@ -4,10 +4,10 @@ import (
 	"errors"
 	"github.com/fsouza/go-dockerclient"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
-	"os"
 )
 
 type Container struct {
@@ -99,6 +99,10 @@ func (self *Container) Stop() error {
 		}
 	}
 	return err
+}
+
+func GetContainers() ([]*Container, error) {
+	return []*Container{}, nil
 }
 
 func GetImageId(name string, tag string) (string, error) {
