@@ -11,10 +11,10 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 	imageId := r.FormValue("image_id")
 	c := &container.Container{Name: name, Tag: tag, ImageId: imageId}
 	err := c.Run()
-	if err != nil {
-		w.Write([]byte("{\"container_id\": \"" + c.ContainerId + "\"}\n"))
+	if err == nil {
+		w.Write([]byte("{\"container_id\": \"" + c.ContainerId + "\"}"))
 	} else {
-		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}\n"))
+		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 	}
 }
 

@@ -2,7 +2,9 @@ package container
 
 import (
 	"errors"
+	"log"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -14,6 +16,21 @@ type Container struct {
 	Variables   map[string]string
 	Ip          string
 	CreatedAt   time.Time
+}
+
+func (self *Container) String() string {
+	name := ""
+	if self.Name != "" {
+		name += self.Name
+		if self.Tag != "" {
+			name += ":" + self.Tag
+		}
+	}
+	if name != "" {
+		name += ", "
+	}
+	name += "imageid: " + self.ImageId + ", ip: " + self.Ip
+	return name
 }
 
 func (self *Container) Run() error {
@@ -49,8 +66,9 @@ func (self *Container) runWithWeave() error {
 	args = append(args, self.ImageId)
 	containerId, err := exec.Command("weave", args...).Output()
 	if err == nil {
-		self.ContainerId = string(containerId)
+		self.ContainerId = strings.TrimSpace(string(containerId))
 		self.CreatedAt = time.Now()
+		log.Println("Started container " + self.String())
 	}
 	return err
 }

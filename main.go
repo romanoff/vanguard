@@ -12,6 +12,7 @@ func main() {
 	app.Usage = "multihost docker orchestration"
 	app.Commands = []cli.Command{
 		command.NewAgentCommand(),
+		command.NewRunCommand(),
 	}
 	app.Run(os.Args)
 }
