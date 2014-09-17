@@ -7,7 +7,7 @@ import (
 )
 
 func NewEtcdStorage() Storage {
-	return &EtcdClient{etcd.NewClient(nil)}
+	return &EtcdStorage{etcd.NewClient(nil)}
 }
 
 type EtcdStorage struct {
@@ -15,12 +15,12 @@ type EtcdStorage struct {
 }
 
 func (self *EtcdStorage) Set(key, value string) error {
-	_, err := self.client.set(key, value, 0)
+	_, err := self.client.Set(key, value, 0)
 	return err
 }
 
 func (self *EtcdStorage) KeyPresent(key string) (bool, error) {
-	resp, err := client.Get(key, false, false)
+	resp, err := self.client.Get(key, false, false)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "100:") {
 			return false, nil
@@ -33,8 +33,8 @@ func (self *EtcdStorage) KeyPresent(key string) (bool, error) {
 	return false, nil
 }
 
-func (self *EtcdStorage) Get(key) (string, error) {
-	resp, err := client.Get(ip, false, false)
+func (self *EtcdStorage) Get(key string) (string, error) {
+	resp, err := self.client.Get(key, false, false)
 	if err != nil {
 		return "", err
 	}
@@ -42,4 +42,9 @@ func (self *EtcdStorage) Get(key) (string, error) {
 		return resp.Node.Value, nil
 	}
 	return "", errors.New("key missing")
+}
+
+func (self *EtcdStorage) Delete(key string) error {
+	_, err := self.client.Delete(key, true)
+	return err
 }
