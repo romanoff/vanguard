@@ -1,0 +1,13 @@
+application: SampleApp
+servers:
+- hostname: 172.0.0.1
+  containers:
+  - image: consul-server
+  - image: user-management
+    count: 2
+    links:
+    - consul-server
+  - image: product-management-haproxy
+    links:
+    - consul-server
+    - user-management
