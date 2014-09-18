@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/codegangsta/cli"
+	"github.com/romanoff/vanguard/client"
 	"github.com/romanoff/vanguard/config"
 )
 
@@ -35,6 +36,22 @@ func upCommandFunc(c *cli.Context) {
 	}
 	if c.Bool("dry") {
 		ShowTiers(tiers)
+		return
+	}
+	for _, tier := range tiers {
+		for _, server := range tier.Servers {
+			vClient := client.NewClient(server.Hostname)
+			for _, container := range server.Containers {
+				for i := 0; i < container.GetCount(); i++ {
+					serverContainer, err := vClient.Run(container.Image, container.Tag, "", nil)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					fmt.Println(serverContainer)
+				}
+			}
+		}
 	}
 }
 

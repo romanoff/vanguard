@@ -60,11 +60,15 @@ type Container struct {
 }
 
 func (self *Container) String() string {
+	return fmt.Sprintf("%v - %v", self.Name(), self.GetCount())
+}
+
+func (self *Container) GetCount() int {
 	count := self.Count
 	if count == 0 {
 		count = 1
 	}
-	return fmt.Sprintf("%v - %v", self.Name(), count)
+	return count
 }
 
 func (self *Container) Name() string {
