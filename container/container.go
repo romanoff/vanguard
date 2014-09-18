@@ -32,7 +32,7 @@ func (self *Container) String() string {
 	if name != "" {
 		name += ", "
 	}
-	name += "containerid: " + self.ContainerId + ", ip: " + self.Ip
+	name += "containerid: " + self.ContainerId + " , ip: " + self.Ip + " , host: " + self.Hostname
 	return name
 }
 
@@ -99,6 +99,33 @@ func (self *Container) Stop() error {
 		}
 	}
 	return err
+}
+
+func (self *Container) Check() bool {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return false
+	}
+	if self.Hostname != hostname {
+		return false
+	}
+	client, err := GetDockerClient()
+	if err != nil {
+		return false
+	}
+	if self.ContainerId == "" {
+		return false
+	}
+	container, err := client.InspectContainer(self.ContainerId)
+	if err != nil {
+		FreeIp(self.Ip)
+		return false
+	}
+	if container.State.Running != true {
+		FreeIp(self.Ip)
+		return false
+	}
+	return true
 }
 
 func GetImageId(name string, tag string) (string, error) {

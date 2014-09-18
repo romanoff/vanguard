@@ -14,13 +14,27 @@ func NewPsCommand() cli.Command {
 		Name:  "ps",
 		Usage: "shows running containers",
 		Action: func(c *cli.Context) {
-			psCommandFunc(c)
+			psCommandFunc(c, false)
 		},
 	}
 }
 
-func psCommandFunc(c *cli.Context) {
-	resp, err := http.Get("http://127.0.0.1:2728/containers")
+func NewPsckCommand() cli.Command {
+	return cli.Command{
+		Name:  "psck",
+		Usage: "shows locally running containers and checks if they are running",
+		Action: func(c *cli.Context) {
+			psCommandFunc(c, true)
+		},
+	}
+}
+
+func psCommandFunc(c *cli.Context, check bool) {
+	url := "http://127.0.0.1:2728/containers"
+	if check {
+		url += "?check=true"
+	}
+	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("vanguard agent is not running")
 		return

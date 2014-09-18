@@ -84,7 +84,7 @@ func GetByContainerId(containerId string) (*Container, error) {
 	return GetByIp(ip)
 }
 
-func GetContainers() ([]*Container, error) {
+func GetContainers(check bool) ([]*Container, error) {
 	db := storage.GetStorage()
 	ips, err := db.Keys("10.0.1.")
 	if err != nil {
@@ -96,7 +96,13 @@ func GetContainers() ([]*Container, error) {
 		if err != nil {
 			return nil, err
 		}
-		containers = append(containers, container)
+		if !check {
+			containers = append(containers, container)
+		} else {
+			if container.Check() {
+				containers = append(containers, container)
+			}
+		}
 	}
 	return containers, nil
 }

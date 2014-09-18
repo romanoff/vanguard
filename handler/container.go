@@ -39,7 +39,8 @@ func ContainerDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func ContainersIndex(w http.ResponseWriter, r *http.Request) {
-	containers, err := container.GetContainers()
+	check := r.FormValue("check")
+	containers, err := container.GetContainers(check != "")
 	if err != nil {
 		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 		return
