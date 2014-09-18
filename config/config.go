@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/yaml.v1"
 	"io/ioutil"
 )
@@ -59,7 +60,11 @@ type Container struct {
 }
 
 func (self *Container) String() string {
-	return self.Name()
+	count := self.Count
+	if count == 0 {
+		count = 1
+	}
+	return fmt.Sprintf("%v - %v", self.Name(), count)
 }
 
 func (self *Container) Name() string {
@@ -99,6 +104,17 @@ func (self *Tier) AddContainer(server *Server, container *Container) {
 		self.Servers = append(self.Servers, usedServer)
 	}
 	usedServer.Containers = append(usedServer.Containers, container)
+}
+
+func (self *Tier) String() string {
+	content := ""
+	for _, server := range self.Servers {
+		content += server.Hostname + ":\n"
+		for _, container := range server.Containers {
+			content += container.String() + "\n"
+		}
+	}
+	return content
 }
 
 func ParseConfig(path string) (*Config, error) {
