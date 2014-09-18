@@ -3,9 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/codegangsta/cli"
-	"io/ioutil"
-	"net/http"
-	"net/url"
+	"github.com/romanoff/vanguard/client"
 )
 
 func NewRunCommand() cli.Command {
@@ -24,12 +22,11 @@ func runCommandFunc(c *cli.Context) {
 		fmt.Println("No image has been specified")
 		return
 	}
-	resp, err := http.PostForm("http://127.0.0.1:2728/containers",
-		url.Values{"name": {name}})
+	vClient := client.NewClient("127.0.0.1")
+	container, err := vClient.Run(name, "", "", nil)
 	if err != nil {
-		fmt.Println("vanguard agent is not running")
+		fmt.Println(err)
 		return
 	}
-	content, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(content))
+	fmt.Println(container)
 }

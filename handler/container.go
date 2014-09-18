@@ -13,7 +13,12 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 	c := &container.Container{Name: name, Tag: tag, ImageId: imageId}
 	err := c.Run()
 	if err == nil {
-		w.Write([]byte("{\"container_id\": \"" + c.ContainerId + "\"}"))
+		content, err := json.Marshal(c)
+		if err != nil {
+			w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
+			return
+		}
+		w.Write(content)
 	} else {
 		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 	}
