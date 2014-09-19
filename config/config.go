@@ -53,10 +53,12 @@ type Server struct {
 }
 
 type Container struct {
-	Image string   `yml:"image,omitempty"`
-	Tag   string   `yml:"tag,omitempty"`
-	Count int      `yml:"count,omitempty"`
-	Links []string `yml:"links,omitempty"`
+	Label   string   `yml:"label,omitempty"`
+	Image   string   `yml:"image,omitempty"`
+	Tag     string   `yml:"tag,omitempty"`
+	ImageId string   `yml:"image_id,omitempty"`
+	Count   int      `yml:"count,omitempty"`
+	Links   []string `yml:"links,omitempty"`
 }
 
 func (self *Container) String() string {
@@ -72,9 +74,15 @@ func (self *Container) GetCount() int {
 }
 
 func (self *Container) Name() string {
+	if self.Label != "" {
+		return self.Label
+	}
 	name := self.Image
 	if self.Tag != "" {
-		name += ":" + self.Tag
+		name += "_" + self.Tag
+	}
+	if name == "" {
+		return self.ImageId
 	}
 	return name
 }

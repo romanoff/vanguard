@@ -38,15 +38,25 @@ func upCommandFunc(c *cli.Context) {
 		ShowTiers(tiers)
 		return
 	}
+	envVariables := make(map[string]string)
 	for _, tier := range tiers {
 		for _, server := range tier.Servers {
 			vClient := client.NewClient(server.Hostname)
 			for _, container := range server.Containers {
 				for i := 0; i < container.GetCount(); i++ {
-					serverContainer, err := vClient.Run(container.Image, container.Tag, "", nil)
+					variables := make(map[string]string)
+					for _, link := range container.Links {
+						if _, ok := envVariables[link]; ok {
+							variables[link] = envVariables[link]
+						}
+					}
+					serverContainer, err := vClient.Run(container.Image, container.Tag, container.ImageId, variables)
 					if err != nil {
 						fmt.Println(err)
 						return
+					}
+					if _, ok := envVariables[container.Name()]; !ok {
+						envVariables[container.Name()] = serverContainer.Ip
 					}
 					fmt.Println(serverContainer)
 				}
