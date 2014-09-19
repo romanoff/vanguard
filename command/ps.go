@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"github.com/romanoff/vanguard/client"
+	"github.com/romanoff/vanguard/config"
 )
 
 func NewPsCommand() cli.Command {
@@ -27,7 +28,19 @@ func NewPsckCommand() cli.Command {
 }
 
 func psCommandFunc(c *cli.Context, check bool) {
-	vClient := client.NewClient("127.0.0.1")
+	hostname := c.Args().First()
+	if hostname == "" {
+		hostname = "127.0.0.1"
+	}
+	cfg, _ := config.ParseConfig("vanguard.yml")
+	if cfg != nil {
+		for _, server := range cfg.Servers {
+			if server.Label == hostname {
+				hostname = server.Hostname
+			}
+		}
+	}
+	vClient := client.NewClient(hostname)
 	containers, err := vClient.Index(check)
 	if err != nil {
 		fmt.Println(err)
