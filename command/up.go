@@ -73,6 +73,7 @@ func (self *ContainerManager) GetRunningContainers(host string) ([]*container.Co
 	c := self.Clients[host]
 	if c == nil {
 		self.Clients[host] = client.NewClient(host)
+		c = self.Clients[host]
 	}
 	containers, err := c.Index(true)
 	if err != nil {
@@ -123,7 +124,9 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 				}
 			}
 			serverContainer, err := vClient.Run(cont.Name(), cont.Image, cont.Tag, cont.ImageId, variables)
-			return err
+			if err != nil {
+				return err
+			}
 			if _, ok := self.EnvVariables[cont.Name()]; !ok {
 				self.EnvVariables[cont.Name()] = serverContainer.Ip
 			}
@@ -147,6 +150,7 @@ func (self *ContainerManager) StopExtra(host string, cont *config.Container) err
 	if containersToStop > 0 {
 		for i := 0; i < containersToStop; i++ {
 			c := runningContainers[len(runningContainers)-1-i]
+			fmt.Println("stopped " + c.String())
 			err = vClient.Stop(c.ContainerId)
 			if err != nil {
 				return err
