@@ -3,8 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/codegangsta/cli"
-	"io/ioutil"
-	"net/http"
+	"github.com/romanoff/vanguard/client"
 )
 
 func NewStopCommand() cli.Command {
@@ -19,17 +18,11 @@ func NewStopCommand() cli.Command {
 
 func stopCommandFunc(c *cli.Context) {
 	containerId := c.Args().First()
-	if containerId == "" {
-		fmt.Println("Container id not specified")
-		return
-	}
-	client := &http.Client{}
-	req, _ := http.NewRequest("DELETE", "http://127.0.0.1:2728/containers/"+containerId, nil)
-	resp, err := client.Do(req)
+	vClient := client.NewClient("127.0.0.1")
+	err := vClient.Stop(containerId)
 	if err != nil {
-		fmt.Println("vanguard agent is not running")
+		fmt.Println(err)
 		return
 	}
-	content, _ := ioutil.ReadAll(resp.Body)
-	fmt.Print(string(content))
+	fmt.Println("success")
 }

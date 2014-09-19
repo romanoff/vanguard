@@ -62,3 +62,28 @@ func (self *Client) Index(check bool) ([]*container.Container, error) {
 	}
 	return containers, nil
 }
+
+func (self *Client) Stop(containerId string) error {
+	if containerId == "" {
+		return errors.New("Container id to stop not specified")
+	}
+	client := &http.Client{}
+	req, _ := http.NewRequest("DELETE", "http://"+self.Hostname+":2728/containers/"+containerId, nil)
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var data map[string]string
+	err = json.Unmarshal(content, &data)
+	if err != nil {
+		return err
+	}
+	if data["error"] != "" {
+		return errors.New(data["error"])
+	}
+	return nil
+}
