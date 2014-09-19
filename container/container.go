@@ -67,7 +67,7 @@ func (self *Container) runWithWeave() error {
 	args := []string{"run", self.Ip + "/24", "-i", "-t"}
 	if self.Variables != nil {
 		for key, value := range self.Variables {
-			args = append(args, "-e", key+"="+value)
+			args = append(args, "-e", strings.ToUpper(key)+"="+value)
 		}
 	}
 	args = append(args, self.ImageId)

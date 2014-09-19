@@ -10,7 +10,13 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	tag := r.FormValue("tag")
 	imageId := r.FormValue("image_id")
-	c := &container.Container{Name: name, Tag: tag, ImageId: imageId}
+	variables := make(map[string]string)
+	for key, values := range r.Form {
+		if key != "name" && key != "tag" && key != "image_id" {
+			variables[key] = values[0]
+		}
+	}
+	c := &container.Container{Name: name, Tag: tag, ImageId: imageId, Variables: variables}
 	err := c.Run()
 	if err == nil {
 		content, err := json.Marshal(c)

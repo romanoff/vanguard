@@ -18,8 +18,15 @@ type Client struct {
 }
 
 func (self *Client) Run(name string, tag string, imageId string, variables map[string]string) (*container.Container, error) {
-	resp, err := http.PostForm("http://"+self.Hostname+":2728/containers",
-		url.Values{"name": {name}, "tag": {tag}, "image_id": {imageId}})
+	values := url.Values{"name": {name}, "tag": {tag}, "image_id": {imageId}}
+	if variables != nil {
+		for key, value := range variables {
+			if key != "name" && key != "tag" && key != "image_id" {
+				values.Add(key, value)
+			}
+		}
+	}
+	resp, err := http.PostForm("http://"+self.Hostname+":2728/containers", values)
 	if err != nil {
 		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
 	}
