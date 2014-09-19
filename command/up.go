@@ -43,7 +43,7 @@ func upCommandFunc(c *cli.Context) {
 		EnvVariables:       make(map[string]string),
 		Clients:            make(map[string]*client.Client),
 		RunningContainers:  make(map[string][]*container.Container),
-		UsedContainerNames: []string{},
+		UsedContainerNames: make(map[string][]string),
 	}
 	for _, tier := range tiers {
 		for _, server := range tier.Servers {
@@ -63,7 +63,7 @@ type ContainerManager struct {
 	EnvVariables       map[string]string
 	Clients            map[string]*client.Client
 	RunningContainers  map[string][]*container.Container
-	UsedContainerNames []string
+	UsedContainerNames map[string][]string
 }
 
 func (self *ContainerManager) GetRunningContainers(host string) ([]*container.Container, error) {
@@ -98,8 +98,8 @@ func (self *ContainerManager) GetRunningContainersByName(host string, name strin
 }
 
 func (self *ContainerManager) Manage(host string, container *config.Container) error {
-	if config.NotIn(self.UsedContainerNames, container.Name()) {
-		self.UsedContainerNames = append(self.UsedContainerNames, container.Name())
+	if config.NotIn(self.UsedContainerNames[host], container.Name()) {
+		self.UsedContainerNames[host] = append(self.UsedContainerNames[host], container.Name())
 	}
 	err := self.Launch(host, container)
 	if err != nil {
@@ -150,11 +150,11 @@ func (self *ContainerManager) StopExtra(host string, cont *config.Container) err
 	if containersToStop > 0 {
 		for i := 0; i < containersToStop; i++ {
 			c := runningContainers[len(runningContainers)-1-i]
-			fmt.Println("stopped " + c.String())
 			err = vClient.Stop(c.ContainerId)
 			if err != nil {
 				return err
 			}
+			fmt.Println("stopped " + c.String())
 		}
 	}
 	return nil
@@ -163,12 +163,13 @@ func (self *ContainerManager) StopExtra(host string, cont *config.Container) err
 func (self *ContainerManager) StopUnused() error {
 	for host, containers := range self.RunningContainers {
 		for _, container := range containers {
-			if config.NotIn(self.UsedContainerNames, container.LabelName()) {
+			if config.NotIn(self.UsedContainerNames[host], container.LabelName()) {
 				vClient := self.Clients[host]
 				err := vClient.Stop(container.ContainerId)
 				if err != nil {
 					return err
 				}
+				fmt.Println("stopped " + container.String())
 			}
 		}
 	}
