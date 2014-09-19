@@ -1,12 +1,9 @@
 package command
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
-	"github.com/romanoff/vanguard/container"
-	"io/ioutil"
-	"net/http"
+	"github.com/romanoff/vanguard/client"
 )
 
 func NewPsCommand() cli.Command {
@@ -30,18 +27,8 @@ func NewPsckCommand() cli.Command {
 }
 
 func psCommandFunc(c *cli.Context, check bool) {
-	url := "http://127.0.0.1:2728/containers"
-	if check {
-		url += "?check=true"
-	}
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Println("vanguard agent is not running")
-		return
-	}
-	content, _ := ioutil.ReadAll(resp.Body)
-	var containers []*container.Container
-	err = json.Unmarshal(content, &containers)
+	vClient := client.NewClient("127.0.0.1")
+	containers, err := vClient.Index(check)
 	if err != nil {
 		fmt.Println(err)
 		return

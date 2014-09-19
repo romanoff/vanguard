@@ -41,3 +41,24 @@ func (self *Client) Run(name string, tag string, imageId string, variables map[s
 	}
 	return c, nil
 }
+
+func (self *Client) Index(check bool) ([]*container.Container, error) {
+	url := "http://" + self.Hostname + ":2728/containers"
+	if check {
+		url += "?check=true"
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var containers []*container.Container
+	err = json.Unmarshal(content, &containers)
+	if err != nil {
+		return nil, err
+	}
+	return containers, nil
+}
