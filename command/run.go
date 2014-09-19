@@ -38,7 +38,7 @@ func runCommandFunc(c *cli.Context) {
 			variables[envVar[0]] = envVar[1]
 		}
 	}
-	container, err := vClient.Run(name, "", "", variables)
+	container, err := vClient.Run(name, name, "", "", variables)
 	if err != nil {
 		fmt.Println(err)
 		return

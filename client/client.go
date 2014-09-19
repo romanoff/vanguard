@@ -17,11 +17,11 @@ type Client struct {
 	Hostname string
 }
 
-func (self *Client) Run(name string, tag string, imageId string, variables map[string]string) (*container.Container, error) {
-	values := url.Values{"name": {name}, "tag": {tag}, "image_id": {imageId}}
+func (self *Client) Run(label string, name string, tag string, imageId string, variables map[string]string) (*container.Container, error) {
+	values := url.Values{"label": {label}, "name": {name}, "tag": {tag}, "image_id": {imageId}}
 	if variables != nil {
 		for key, value := range variables {
-			if key != "name" && key != "tag" && key != "image_id" {
+			if key != "label" && key != "name" && key != "tag" && key != "image_id" {
 				values.Add(key, value)
 			}
 		}

@@ -11,6 +11,7 @@ import (
 )
 
 type Container struct {
+	Label       string            `json:"label,omitempty"`
 	Name        string            `json:"name,omitempty"`
 	Tag         string            `json:"tag,omitempty"`
 	ImageId     string            `json:"image_id"`
@@ -19,6 +20,20 @@ type Container struct {
 	Ip          string            `json:"ip"`
 	Hostname    string            `json:"hostname"`
 	CreatedAt   time.Time         `json:"created_at,omitempty"`
+}
+
+func (self *Container) LabelName() string {
+	if self.Label != "" {
+		return self.Label
+	}
+	name := self.Name
+	if self.Tag != "" {
+		name += "_" + self.Tag
+	}
+	if name == "" {
+		return self.ImageId
+	}
+	return name
 }
 
 func (self *Container) String() string {
