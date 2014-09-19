@@ -30,7 +30,11 @@ func runCommandFunc(c *cli.Context) {
 		fmt.Println("No image has been specified")
 		return
 	}
-	vClient := client.NewClient("127.0.0.1")
+	hostname := "127.0.0.1"
+	if len(c.Args()) > 1 {
+		hostname = getHostname(c.Args()[1])
+	}
+	vClient := client.NewClient(hostname)
 	variables := make(map[string]string)
 	for _, envVariable := range c.StringSlice("e") {
 		envVar := strings.Split(envVariable, "=")
