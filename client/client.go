@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/romanoff/vanguard/container"
 	"io/ioutil"
 	"net/http"
@@ -77,13 +78,13 @@ func (self *Client) Stop(containerId string) error {
 	if err != nil {
 		return err
 	}
-	var data map[string]string
+	var data map[string]interface{}
 	err = json.Unmarshal(content, &data)
 	if err != nil {
 		return err
 	}
-	if data["error"] != "" {
-		return errors.New(data["error"])
+	if data["error"] != nil {
+		return errors.New(fmt.Sprintf("%v", data["error"]))
 	}
 	return nil
 }
