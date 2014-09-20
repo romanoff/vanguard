@@ -17,6 +17,11 @@ func NewRunCommand() cli.Command {
 				Value: &cli.StringSlice{},
 				Usage: "environment variables",
 			},
+			cli.StringSliceFlag{
+				Name:  "dns",
+				Value: &cli.StringSlice{},
+				Usage: "dns servers for container",
+			},
 		},
 		Action: func(c *cli.Context) {
 			runCommandFunc(c)
@@ -42,7 +47,11 @@ func runCommandFunc(c *cli.Context) {
 			variables[envVar[0]] = envVar[1]
 		}
 	}
-	container, err := vClient.Run(name, name, "", "", variables)
+	dnsServers := []string{}
+	for _, dns := range c.StringSlice("dns") {
+		dnsServers = append(dnsServers, dns)
+	}
+	container, err := vClient.Run(name, name, "", "", variables, dnsServers)
 	if err != nil {
 		fmt.Println(err)
 		return

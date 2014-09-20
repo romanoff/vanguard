@@ -123,7 +123,7 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 					variables[link] = self.EnvVariables[link]
 				}
 			}
-			serverContainer, err := vClient.Run(cont.Name(), cont.Image, cont.Tag, cont.ImageId, variables)
+			serverContainer, err := vClient.Run(cont.Name(), cont.Image, cont.Tag, cont.ImageId, variables, cont.DNS)
 			if err != nil {
 				return err
 			}

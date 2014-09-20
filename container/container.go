@@ -20,6 +20,7 @@ type Container struct {
 	Ip          string            `json:"ip"`
 	Hostname    string            `json:"hostname"`
 	CreatedAt   time.Time         `json:"created_at,omitempty"`
+	DNS         []string          `json:"dns,omitempty"`
 }
 
 func (self *Container) LabelName() string {
@@ -83,6 +84,11 @@ func (self *Container) runWithWeave() error {
 	if self.Variables != nil {
 		for key, value := range self.Variables {
 			args = append(args, "-e", strings.ToUpper(key)+"="+value)
+		}
+	}
+	if self.DNS != nil {
+		for _, dns := range self.DNS {
+			args = append(args, "--dns", dns)
 		}
 	}
 	args = append(args, self.ImageId)

@@ -60,6 +60,7 @@ type Container struct {
 	ImageId string   `yml:"image_id,omitempty"`
 	Count   int      `yml:"count,omitempty"`
 	Links   []string `yml:"links,omitempty"`
+	DNS     []string `yml:"dns,omitempty"`
 }
 
 func (self *Container) String() string {
