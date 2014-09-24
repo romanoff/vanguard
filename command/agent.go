@@ -24,6 +24,10 @@ func agentCommandFunc() {
 	mux.Put("/containers/:container_id", http.HandlerFunc(handler.ContainerUpdate))
 	mux.Del("/containers/:container_id", http.HandlerFunc(handler.ContainerDelete))
 	mux.Get("/containers", http.HandlerFunc(handler.ContainersIndex))
+
+	mux.Post("/portbinding", http.HandlerFunc(handler.PortBindingCreate))
+	mux.Get("/portbindings", http.HandlerFunc(handler.PortBindingsIndex))
+	mux.Del("/portbindings/:port", http.HandlerFunc(handler.PortBindingDelete))
 	http.Handle("/", mux)
 	log.Println("Listening on port 2728")
 	http.ListenAndServe(":2728", nil)
