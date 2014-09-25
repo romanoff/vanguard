@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/romanoff/vanguard/portbinding"
 	"net/http"
 )
@@ -14,12 +15,13 @@ func PortBindingCreate(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 		return
 	}
-	err = binding.Start()
+	go binding.Start()
+	content, err := json.Marshal(binding)
 	if err != nil {
 		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 		return
 	}
-	w.Write([]byte("{\"success\": true}"))
+	w.Write(content)
 }
 
 func PortBindingsIndex(w http.ResponseWriter, r *http.Request) {

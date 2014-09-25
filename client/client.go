@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/romanoff/vanguard/container"
+	"github.com/romanoff/vanguard/portbinding"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -92,4 +93,22 @@ func (self *Client) Stop(containerId string) error {
 		return errors.New(fmt.Sprintf("%v", data["error"]))
 	}
 	return nil
+}
+
+func (self *Client) Expose(port, internalHost, internalPort string) (*portbinding.PortBinding, error) {
+	values := url.Values{"port": {port}, "host": {internalHost}, "host_port": {internalPort}}
+	resp, err := http.PostForm("http://"+self.Hostname+":2728/portbindings", values)
+	if err != nil {
+		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var pb *portbinding.PortBinding
+	err = json.Unmarshal(content, &pb)
+	if err != nil {
+		return nil, err
+	}
+	return pb, nil
 }

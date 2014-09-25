@@ -17,6 +17,7 @@ func main() {
 		command.NewPsCommand(),
 		command.NewPsckCommand(),
 		command.NewUpCommand(),
+		command.NewExposeCommand(),
 	}
 	app.Run(os.Args)
 }
