@@ -3,6 +3,7 @@ package portbinding
 import (
 	"io"
 	"net"
+	"fmt"
 )
 
 func New(port, host, hostPort string) (*PortBinding, error) {
@@ -42,6 +43,10 @@ func (self *PortBinding) Stop() error {
 	self.stop <- true
 	self.Running = false
 	return nil
+}
+
+func (self *PortBinding) String() string {
+	return fmt.Sprintf("%v binded to %v:%v", self.Port, self.Host, self.HostPort)
 }
 
 

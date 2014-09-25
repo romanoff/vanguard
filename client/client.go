@@ -112,3 +112,21 @@ func (self *Client) Expose(port, internalHost, internalPort string) (*portbindin
 	}
 	return pb, nil
 }
+
+func (self *Client) Bindings() ([]*portbinding.PortBinding, error) {
+	url := "http://" + self.Hostname + ":2728/portbindings"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var bindings []*portbinding.PortBinding
+	err = json.Unmarshal(content, &bindings)
+	if err != nil {
+		return nil, err
+	}
+	return bindings, nil
+}
