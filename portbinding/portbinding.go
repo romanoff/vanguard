@@ -61,11 +61,15 @@ func getConnectionChannel(conn net.Listener) <-chan net.Conn {
 	return out
 }
 
+func copy(wc io.WriteCloser, r io.Reader) {
+	defer wc.Close()
+	io.Copy(wc, r)
+}
 
 func handleConnection(conn net.Conn, pb *PortBinding) {
 	remote, err := net.Dial("tcp", pb.Host+":"+pb.HostPort)
 	if err == nil {
-		go io.Copy(conn, remote)
-		go io.Copy(remote, conn)
+		go copy(conn, remote)
+		go copy(remote, conn)
 	}
 }
