@@ -19,6 +19,7 @@ func main() {
 		command.NewUpCommand(),
 		command.NewExposeCommand(),
 		command.NewBindingsCommand(),
+		command.NewHideCommand(),
 	}
 	app.Run(os.Args)
 }

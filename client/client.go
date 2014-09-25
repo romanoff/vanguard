@@ -130,3 +130,33 @@ func (self *Client) Bindings() ([]*portbinding.PortBinding, error) {
 	}
 	return bindings, nil
 }
+
+func (self *Client) Hide(port string) (*portbinding.PortBinding, error) {
+	if port == "" {
+		return nil, errors.New("port is not specified")
+	}
+	client := &http.Client{}
+	req, _ := http.NewRequest("DELETE", "http://"+self.Hostname+":2728/portbindings/"+port, nil)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var data map[string]interface{}
+	err = json.Unmarshal(content, &data)
+	if err != nil {
+		return nil, err
+	}
+	if data["error"] != nil {
+		return nil, errors.New(fmt.Sprintf("%v", data["error"]))
+	}
+	var pb *portbinding.PortBinding
+	err = json.Unmarshal(content, &pb)
+	if err != nil {
+		return nil, nil
+	}
+	return pb, nil
+}

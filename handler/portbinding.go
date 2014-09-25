@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"github.com/romanoff/vanguard/portbinding"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 var bindingsList []*portbinding.PortBinding = []*portbinding.PortBinding{}
@@ -39,7 +39,8 @@ func PortBindingsIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func PortBindingDelete(w http.ResponseWriter, r *http.Request) {
-	port := r.FormValue("port")
+	params := r.URL.Query()
+	port := params.Get(":port")
 	i := -1
 	for j, binding := range bindingsList {
 		if binding.Port == port {
