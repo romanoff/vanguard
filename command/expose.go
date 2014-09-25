@@ -30,6 +30,7 @@ func exposeCommandFunc(c *cli.Context) {
 	host := "127.0.0.1"
 	port := slice[0]
 	if len(slice) == 2 {
+		host = slice[0]
 		port = slice[1]
 	}
 	slice = strings.Split(c.Args()[1], ":")
