@@ -11,13 +11,13 @@ func NewBindingsCommand() cli.Command {
 		Name:  "bindings",
 		Usage: "shows port bindings",
 		Action: func(c *cli.Context) {
-			bindingsCommandFunc(c)
+			host := c.Args().First()
+			bindingsCommandFunc(host)
 		},
 	}
 }
 
-func bindingsCommandFunc(c *cli.Context) {
-	host := c.Args().First()
+func bindingsCommandFunc(host string) {
 	if host == "" {
 		host = "127.0.0.1"
 	}

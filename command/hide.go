@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"github.com/romanoff/vanguard/client"
+	"strings"
 )
 
 func NewHideCommand() cli.Command {
@@ -17,16 +18,27 @@ func NewHideCommand() cli.Command {
 }
 
 func hideCommandFunc(c *cli.Context) {
-	port := c.Args().First()
 	host := "127.0.0.1"
+	port := c.Args().First()
+	slice := strings.Split(c.Args()[0], ":")
+	if len(slice) == 2 {
+		host = slice[0]
+		port = slice[1]
+	}
+	bindingHost := ""
+	bindingPort := ""
 	if len(c.Args()) == 2 {
-		host = c.Args()[1]
+		slice := strings.Split(c.Args()[1], ":")
+		if len(slice) == 2 {
+			bindingHost = slice[0]
+			bindingPort = slice[1]
+		}
 	}
 	vClient := client.NewClient(host)
-	binding, err := vClient.Hide(port)
+	err := vClient.Hide(port, bindingHost, bindingPort)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("hidden " + host + " port " + binding.String())
+	bindingsCommandFunc(host)
 }

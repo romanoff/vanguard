@@ -8,6 +8,7 @@ import (
 )
 
 func New(port string) (*PortBinding, error) {
+	rand.Seed(time.Now().UnixNano())
 	return &PortBinding{Port: port, Backends: []*Backend{}}, nil
 }
 
@@ -94,7 +95,6 @@ func (self *PortBinding) GetRandomBackend() *Backend {
 	if len(self.Backends) == 0 {
 		return nil
 	}
-	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(len(self.Backends))
 	return self.Backends[i]
 }
@@ -110,7 +110,7 @@ func getConnectionChannel(conn net.Listener) <-chan net.Conn {
 	return out
 }
 
-func copyandclose(wc io.WriteCloser, r io.Reader) {
+func copyAndClose(wc io.WriteCloser, r io.Reader) {
 	defer wc.Close()
 	io.Copy(wc, r)
 }
@@ -122,7 +122,7 @@ func handleConnection(conn net.Conn, pb *PortBinding) {
 	}
 	remote, err := net.Dial("tcp", backend.String())
 	if err == nil {
-		go copyandclose(conn, remote)
-		go copyandclose(remote, conn)
+		go copyAndClose(conn, remote)
+		go copyAndClose(remote, conn)
 	}
 }

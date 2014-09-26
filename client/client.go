@@ -131,32 +131,30 @@ func (self *Client) Bindings() ([]*portbinding.PortBinding, error) {
 	return bindings, nil
 }
 
-func (self *Client) Hide(port string) (*portbinding.PortBinding, error) {
+func (self *Client) Hide(port string, host string, hostPort string) error {
 	if port == "" {
-		return nil, errors.New("port is not specified")
+		return errors.New("port is not specified")
 	}
 	client := &http.Client{}
-	req, _ := http.NewRequest("DELETE", "http://"+self.Hostname+":2728/portbindings/"+port, nil)
+	req, err := http.NewRequest("DELETE", "http://"+self.Hostname+":2728/portbindings/"+port+"?host="+host+"&host_port="+hostPort, nil)
+	if err != nil {
+		return err
+	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+		return errors.New("vanguard agent is not running on host " + self.Hostname)
 	}
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var data map[string]interface{}
 	err = json.Unmarshal(content, &data)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if data["error"] != nil {
-		return nil, errors.New(fmt.Sprintf("%v", data["error"]))
+		return errors.New(fmt.Sprintf("%v", data["error"]))
 	}
-	var pb *portbinding.PortBinding
-	err = json.Unmarshal(content, &pb)
-	if err != nil {
-		return nil, nil
-	}
-	return pb, nil
+	return nil
 }
