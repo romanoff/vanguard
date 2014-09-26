@@ -7,15 +7,8 @@ import (
 	"time"
 )
 
-func New(port, host, hostPort string) (*PortBinding, error) {
-	return &PortBinding{Port: port, Backends: []*Backend{{Host: host, Port: hostPort}}}, nil
-}
-
-type PortBinding struct {
-	Port     string
-	stop     chan bool
-	Backends []*Backend
-	Running  bool
+func New(port string) (*PortBinding, error) {
+	return &PortBinding{Port: port, Backends: []*Backend{}}, nil
 }
 
 type Backend struct {
@@ -25,6 +18,13 @@ type Backend struct {
 
 func (self *Backend) String() string {
 	return self.Host + ":" + self.Port
+}
+
+type PortBinding struct {
+	Port     string
+	stop     chan bool
+	Backends []*Backend
+	Running  bool
 }
 
 func (self *PortBinding) Start() error {
@@ -65,6 +65,40 @@ func (self *PortBinding) String() string {
 	return content
 }
 
+func (self *PortBinding) GetBackend(host, port string) (int, *Backend) {
+	for i, backend := range self.Backends {
+		if backend.Host == host && backend.Port == port {
+			return i, backend
+		}
+	}
+	return -1, nil
+}
+
+func (self *PortBinding) AddBackend(host, port string) {
+	_, backend := self.GetBackend(host, port)
+	if backend == nil {
+		self.Backends = append(self.Backends, &Backend{Host: host, Port: port})
+	}
+}
+
+func (self *PortBinding) RemoveBackend(host, port string) {
+	i, _ := self.GetBackend(host, port)
+	if i != -1 {
+		copy(self.Backends[i:], self.Backends[i+1:])
+		self.Backends[len(self.Backends)-1] = nil
+		self.Backends = self.Backends[:len(self.Backends)-1]
+	}
+}
+
+func (self *PortBinding) GetRandomBackend() *Backend {
+	if len(self.Backends) == 0 {
+		return nil
+	}
+	rand.Seed(time.Now().UnixNano())
+	i := rand.Intn(len(self.Backends))
+	return self.Backends[i]
+}
+
 func getConnectionChannel(conn net.Listener) <-chan net.Conn {
 	out := make(chan net.Conn)
 	go func() {
@@ -76,20 +110,19 @@ func getConnectionChannel(conn net.Listener) <-chan net.Conn {
 	return out
 }
 
-func copy(wc io.WriteCloser, r io.Reader) {
+func copyandclose(wc io.WriteCloser, r io.Reader) {
 	defer wc.Close()
 	io.Copy(wc, r)
 }
 
 func handleConnection(conn net.Conn, pb *PortBinding) {
-	if len(pb.Backends) == 0 {
+	backend := pb.GetRandomBackend()
+	if backend == nil {
 		return
 	}
-	rand.Seed(time.Now().UnixNano())
-	i := rand.Intn(len(pb.Backends))
-	remote, err := net.Dial("tcp", pb.Backends[i].String())
+	remote, err := net.Dial("tcp", backend.String())
 	if err == nil {
-		go copy(conn, remote)
-		go copy(remote, conn)
+		go copyandclose(conn, remote)
+		go copyandclose(remote, conn)
 	}
 }

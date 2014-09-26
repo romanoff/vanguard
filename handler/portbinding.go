@@ -9,16 +9,34 @@ import (
 
 var bindingsList []*portbinding.PortBinding = []*portbinding.PortBinding{}
 
+func getPortBinding(port string) (*portbinding.PortBinding, error) {
+	var binding *portbinding.PortBinding
+	for _, b := range bindingsList {
+		if b.Port == port {
+			binding = b
+		}
+	}
+	if binding == nil {
+		binding, err := portbinding.New(port)
+		if err != nil {
+			return nil, err
+		}
+		bindingsList = append(bindingsList, binding)
+	}
+	return binding, nil
+
+}
+
 func PortBindingCreate(w http.ResponseWriter, r *http.Request) {
 	port := r.FormValue("port")
 	host := r.FormValue("host")
 	hostPort := r.FormValue("host_port")
-	binding, err := portbinding.New(port, host, hostPort)
+	binding, err := getPortBinding(port)
 	if err != nil {
 		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 		return
 	}
-	bindingsList = append(bindingsList, binding)
+	binding.AddBackend(host, hostPort)
 	go binding.Start()
 	content, err := json.Marshal(binding)
 	if err != nil {
@@ -41,6 +59,7 @@ func PortBindingsIndex(w http.ResponseWriter, r *http.Request) {
 func PortBindingDelete(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	port := params.Get(":port")
+
 	i := -1
 	for j, binding := range bindingsList {
 		if binding.Port == port {
