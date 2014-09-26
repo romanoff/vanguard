@@ -3,19 +3,26 @@ package portbinding
 import (
 	"io"
 	"net"
-	"fmt"
 )
 
 func New(port, host, hostPort string) (*PortBinding, error) {
-	return &PortBinding{Port: port, Host: host, HostPort: hostPort}, nil
+	return &PortBinding{Port: port, Backends: []*Backend{{Host: host, Port: hostPort}}}, nil
 }
 
 type PortBinding struct {
 	Port     string
-	Host     string
-	HostPort string
 	stop     chan bool
-	Running bool
+	Backends []*Backend
+	Running  bool
+}
+
+type Backend struct {
+	Host string
+	Port string
+}
+
+func (self *Backend) String() string {
+	return self.Host + ":" + self.Port
 }
 
 func (self *PortBinding) Start() error {
@@ -30,7 +37,7 @@ Loop:
 	for {
 		select {
 		case <-self.stop:
-			break Loop;
+			break Loop
 		case hostConn := <-connectionChannel:
 			handleConnection(hostConn, self)
 		}
@@ -46,9 +53,15 @@ func (self *PortBinding) Stop() error {
 }
 
 func (self *PortBinding) String() string {
-	return fmt.Sprintf("%v binded to %v:%v", self.Port, self.Host, self.HostPort)
+	content := self.Port + " binded to"
+	for i, backend := range self.Backends {
+		if i != 0 {
+			content += ","
+		}
+		content += " " + backend.String()
+	}
+	return content
 }
-
 
 func getConnectionChannel(conn net.Listener) <-chan net.Conn {
 	out := make(chan net.Conn)
@@ -67,7 +80,10 @@ func copy(wc io.WriteCloser, r io.Reader) {
 }
 
 func handleConnection(conn net.Conn, pb *PortBinding) {
-	remote, err := net.Dial("tcp", pb.Host+":"+pb.HostPort)
+	if len(pb.Backends) == 0 {
+		return
+	}
+	remote, err := net.Dial("tcp", pb.Backends[0].String())
 	if err == nil {
 		go copy(conn, remote)
 		go copy(remote, conn)
