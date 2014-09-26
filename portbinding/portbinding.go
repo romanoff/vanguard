@@ -2,7 +2,9 @@ package portbinding
 
 import (
 	"io"
+	"math/rand"
 	"net"
+	"time"
 )
 
 func New(port, host, hostPort string) (*PortBinding, error) {
@@ -83,7 +85,9 @@ func handleConnection(conn net.Conn, pb *PortBinding) {
 	if len(pb.Backends) == 0 {
 		return
 	}
-	remote, err := net.Dial("tcp", pb.Backends[0].String())
+	rand.Seed(time.Now().UnixNano())
+	i := rand.Intn(len(pb.Backends))
+	remote, err := net.Dial("tcp", pb.Backends[i].String())
 	if err == nil {
 		go copy(conn, remote)
 		go copy(remote, conn)
