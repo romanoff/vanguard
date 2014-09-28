@@ -4,8 +4,10 @@ import (
 	"github.com/bmizerany/pat"
 	"github.com/codegangsta/cli"
 	"github.com/romanoff/vanguard/handler"
+	"github.com/romanoff/vanguard/host"
 	"log"
 	"net/http"
+	"os"
 )
 
 func NewAgentCommand() cli.Command {
@@ -29,6 +31,16 @@ func agentCommandFunc() {
 	mux.Get("/portbindings", http.HandlerFunc(handler.PortBindingsIndex))
 	mux.Del("/portbindings/:port", http.HandlerFunc(handler.PortBindingDelete))
 	http.Handle("/", mux)
+	currentHost, err := host.New("", "")
+	if err != nil {
+		log.Printf("Error getting host information: %v\n", err)
+		os.Exit(1)
+	}
+	err = currentHost.Persist()
+	if err != nil {
+		log.Printf("Error persisting host information: %v\n", err)
+		os.Exit(1)
+	}
 	log.Println("Listening on port 2728")
 	http.ListenAndServe(":2728", nil)
 }
