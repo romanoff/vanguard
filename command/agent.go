@@ -20,8 +20,22 @@ func NewAgentCommand() cli.Command {
 				Usage: "server hostname",
 			},
 			cli.StringFlag{
-				Name:  "ip",
+				Name:  "internal_ip",
 				Usage: "server weave ip address",
+			},
+			cli.StringFlag{
+				Name:  "external_ip",
+				Usage: "external server ip address",
+			},
+			cli.StringFlag{
+				Name:  "external_interface",
+				Value: "eth0",
+				Usage: "external network interface",
+			},
+			cli.StringFlag{
+				Name:  "internal_interface",
+				Value: "weave",
+				Usage: "internal network interface",
 			},
 		},
 		Action: func(c *cli.Context) {
@@ -41,7 +55,14 @@ func agentCommandFunc(c *cli.Context) {
 	mux.Get("/portbindings", http.HandlerFunc(handler.PortBindingsIndex))
 	mux.Del("/portbindings/:port", http.HandlerFunc(handler.PortBindingDelete))
 	http.Handle("/", mux)
-	currentHost, err := host.New(c.String("hostname"), c.String("ip"))
+
+	currentHost, err := host.New(
+		c.String("hostname"),
+		c.String("external_interface"),
+		c.String("internal_interface"),
+		c.String("external_ip"),
+		c.String("internal_ip"),
+	)
 	if err != nil {
 		log.Printf("Error getting host information: %v\n", err)
 		os.Exit(1)
