@@ -14,7 +14,10 @@ func New(hostname, ip string) (*Host, error) {
 		}
 	}
 	if ip == "" {
-		ip = "10.0.1.1"
+		ip, err = GetIpAddress("weave")
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &Host{
 		Hostname:     hostname,
