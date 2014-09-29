@@ -2,6 +2,7 @@ package host
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/romanoff/vanguard/portbinding"
 	"github.com/romanoff/vanguard/storage"
 	"os"
@@ -32,14 +33,17 @@ func New(hostname, externalInterface, internalInterface, externalIp, internalIp 
 		for _, binding := range host.PortBindings {
 			go binding.Start()
 		}
-		return host, nil
 	}
-	return &Host{
-		Hostname:     hostname,
-		ExternalIp:   externalIp,
-		InternalIp:   internalIp,
-		PortBindings: []*portbinding.PortBinding{},
-	}, nil
+	if host == nil {
+		host = &Host{
+			Hostname:     hostname,
+			ExternalIp:   externalIp,
+			InternalIp:   internalIp,
+			PortBindings: []*portbinding.PortBinding{},
+		}
+	}
+	currentHost = host
+	return host, nil
 }
 
 type Host struct {
@@ -74,4 +78,13 @@ func GetHost(ip string) (*Host, error) {
 		return nil, err
 	}
 	return host, nil
+}
+
+var currentHost *Host
+
+func GetCurrentHost() (*Host, error) {
+	if currentHost == nil {
+		return nil, errors.New("current host is not set")
+	}
+	return currentHost, nil
 }
