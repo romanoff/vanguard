@@ -3,6 +3,7 @@ servers:
 - hostname: 172.0.0.1
   containers:
   - image: consul-server
+    expose: ["8500:8500"]
   - image: user-management
     count: 2
     links:

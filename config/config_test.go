@@ -15,6 +15,13 @@ func TestParseConfig(t *testing.T) {
 	if len(config.Servers) != 1 {
 		t.Errorf("Expected to get 1 application server, but got '%v'", len(config.Servers))
 	}
+	if len(config.Servers[0].Containers) != 2 {
+		t.Errorf("Expected to get 2 container, but got '%v'", len(config.Servers[0].Containers))
+	}
+	expose := config.Servers[0].Containers[0].Expose[0]
+	if expose != "8500:8500" {
+		t.Errorf("Expected first container to expose '8500:8500' ports, but got %v", expose)
+	}
 }
 
 func TestGetTiers(t *testing.T) {

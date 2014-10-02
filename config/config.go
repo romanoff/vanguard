@@ -61,6 +61,7 @@ type Container struct {
 	Count   int      `yml:"count,omitempty"`
 	Links   []string `yml:"links,omitempty"`
 	DNS     []string `yml:"dns,omitempty"`
+	Expose  []string `yml:"expose,omitempty"`
 }
 
 func (self *Container) String() string {
