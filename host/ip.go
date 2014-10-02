@@ -8,7 +8,8 @@ import (
 	"regexp"
 )
 
-var ipRegexp *regexp.Regexp = regexp.MustCompile("inet addr:(.*)\\s")
+var ipRegexp *regexp.Regexp = regexp.MustCompile("inet addr:(\\d+\\.\\d+.\\d+\\.\\d+)")
+
 
 func GetIpAddress(interf string) (string, error) {
 	interfaceData, err := exec.Command("ifconfig", interf).Output()

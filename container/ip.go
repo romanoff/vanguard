@@ -97,7 +97,9 @@ func GetContainers(check bool) ([]*Container, error) {
 			return nil, err
 		}
 		if !check {
-			containers = append(containers, container)
+			if container.Name != "" {
+				containers = append(containers, container)
+			}
 		} else {
 			if container.Check() {
 				containers = append(containers, container)

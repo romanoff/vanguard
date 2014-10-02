@@ -64,5 +64,12 @@ func stopAllOnHost(hostname string) error {
 		}
 		fmt.Println("stopped " + container.String())
 	}
+	bindings, err := vClient.Bindings()
+	for _, binding := range bindings {
+		err = vClient.Hide(binding.Port, "", "")
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

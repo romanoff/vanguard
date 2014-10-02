@@ -1,11 +1,13 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"github.com/romanoff/vanguard/client"
 	"github.com/romanoff/vanguard/config"
 	"github.com/romanoff/vanguard/container"
+	"strings"
 )
 
 func NewUpCommand() cli.Command {
@@ -30,6 +32,7 @@ func upCommandFunc(c *cli.Context) {
 		fmt.Println(err)
 		return
 	}
+
 	tiers, err := config.GetTiers()
 	if err != nil {
 		fmt.Println(err)
@@ -38,6 +41,17 @@ func upCommandFunc(c *cli.Context) {
 	if c.Bool("dry") {
 		ShowTiers(tiers)
 		return
+	}
+	for _, server := range config.Servers {
+		c := client.NewClient(server.Hostname)
+		bindings, err := c.Bindings()
+		for _, binding := range bindings {
+			err = c.Hide(binding.Port, "", "")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
 	}
 	manager := &ContainerManager{
 		EnvVariables:       make(map[string]string),
@@ -108,6 +122,26 @@ func (self *ContainerManager) Manage(host string, container *config.Container) e
 	return self.StopExtra(host, container)
 }
 
+func (self *ContainerManager) Expose(host string, cont *config.Container, serverContainer *container.Container) error {
+	vClient := self.Clients[host]
+	if cont.Expose != nil && len(cont.Expose) > 0 {
+		for _, expose := range cont.Expose {
+			ports := strings.Split(expose, ":")
+			if len(ports) != 2 {
+				return errors.New(fmt.Sprintf("Invalid expose syntax: %v", expose))
+			}
+			hostPort := ports[0]
+			containerPort := ports[1]
+			binding, err := vClient.Expose(hostPort, serverContainer.Ip, containerPort)
+			if err != nil {
+				return err
+			}
+			fmt.Println(host + ":" + binding.String())
+		}
+	}
+	return nil
+}
+
 func (self *ContainerManager) Launch(host string, cont *config.Container) error {
 	runningContainers, err := self.GetRunningContainersByName(host, cont.Name())
 	if err != nil {
@@ -131,8 +165,18 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 				self.EnvVariables[cont.Name()] = serverContainer.Ip
 			}
 			fmt.Println(serverContainer)
+			err = self.Expose(host, cont, serverContainer)
+			if err != nil {
+				return err
+			}
 		}
 	} else if len(runningContainers) > 0 {
+		for _, rc := range runningContainers {
+			err = self.Expose(host, cont, rc)
+			if err != nil {
+				return err
+			}
+		}
 		if _, ok := self.EnvVariables[cont.Name()]; !ok {
 			self.EnvVariables[cont.Name()] = runningContainers[0].Ip
 		}
