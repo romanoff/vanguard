@@ -172,10 +172,7 @@ func (self *Client) Hosts() ([]*host.Host, error) {
 	}
 	var data map[string]interface{}
 	err = json.Unmarshal(content, &data)
-	if err != nil {
-		return nil, err
-	}
-	if data["error"] != nil {
+	if err == nil && data["error"] != nil {
 		return nil, errors.New(fmt.Sprintf("%v", data["error"]))
 	}
 	var hosts []*host.Host
