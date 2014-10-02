@@ -4,6 +4,7 @@ servers:
   containers:
   - image: consul-server
     expose: ["8500:8500"]
+    variables: ["ENV:production"]
   - image: user-management
     count: 2
     links:

@@ -157,6 +157,14 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 					variables[link] = self.EnvVariables[link]
 				}
 			}
+			if cont.Variables != nil {
+				for _, variable := range cont.Variables {
+					values := strings.Split(variable, ":")
+					if len(values) == 2 {
+						variables[values[0]] = values[1]
+					}
+				}
+			}
 			serverContainer, err := vClient.Run(cont.Name(), cont.Image, cont.Tag, cont.ImageId, variables, cont.DNS)
 			if err != nil {
 				return err

@@ -22,6 +22,10 @@ func TestParseConfig(t *testing.T) {
 	if expose != "8500:8500" {
 		t.Errorf("Expected first container to expose '8500:8500' ports, but got %v", expose)
 	}
+	variable := config.Servers[0].Containers[0].Variables[0]
+	if variable != "ENV:production" {
+		t.Errorf("Expected first container to have variable 'ENV:production', but got %v", variable)
+	}
 }
 
 func TestGetTiers(t *testing.T) {
