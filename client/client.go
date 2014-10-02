@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/romanoff/vanguard/container"
+	"github.com/romanoff/vanguard/host"
 	"github.com/romanoff/vanguard/portbinding"
 	"io/ioutil"
 	"net/http"
@@ -157,4 +158,30 @@ func (self *Client) Hide(port string, host string, hostPort string) error {
 		return errors.New(fmt.Sprintf("%v", data["error"]))
 	}
 	return nil
+}
+
+func (self *Client) Hosts() ([]*host.Host, error) {
+	url := "http://" + self.Hostname + ":2728/hosts"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var data map[string]interface{}
+	err = json.Unmarshal(content, &data)
+	if err != nil {
+		return nil, err
+	}
+	if data["error"] != nil {
+		return nil, errors.New(fmt.Sprintf("%v", data["error"]))
+	}
+	var hosts []*host.Host
+	err = json.Unmarshal(content, &hosts)
+	if err != nil {
+		return nil, err
+	}
+	return hosts, nil
 }

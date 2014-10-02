@@ -54,6 +54,9 @@ func agentCommandFunc(c *cli.Context) {
 	mux.Post("/portbindings", http.HandlerFunc(handler.PortBindingCreate))
 	mux.Get("/portbindings", http.HandlerFunc(handler.PortBindingsIndex))
 	mux.Del("/portbindings/:port", http.HandlerFunc(handler.PortBindingDelete))
+
+	mux.Get("/hosts", http.HandlerFunc(handler.HostsIndex))
+
 	http.Handle("/", mux)
 
 	currentHost, err := host.New(

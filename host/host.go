@@ -66,6 +66,10 @@ func (self *Host) Persist() error {
 	return nil
 }
 
+func (self *Host) String() string {
+	return "hostname: " + self.Hostname + " ip: " + self.ExternalIp + ", weave ip: " + self.InternalIp
+}
+
 func GetHost(ip string) (*Host, error) {
 	db := storage.GetStorage()
 	jsonString, err := db.Get(ip)
@@ -87,4 +91,37 @@ func GetCurrentHost() (*Host, error) {
 		return nil, errors.New("current host is not set")
 	}
 	return currentHost, nil
+}
+
+func GetByIp(ip string) (*Host, error) {
+	db := storage.GetStorage()
+	jsonString, err := db.Get(ip)
+	if err != nil {
+		return nil, err
+	}
+	var host *Host
+	err = json.Unmarshal([]byte(jsonString), &host)
+	if err != nil {
+		return nil, err
+	}
+	return host, nil
+}
+
+func GetHosts() ([]*Host, error) {
+	db := storage.GetStorage()
+	ips, err := db.Keys("10.0.1.")
+	if err != nil {
+		return nil, err
+	}
+	hosts := []*Host{}
+	for _, ip := range ips {
+		host, err := GetByIp(ip)
+		if err != nil {
+			return nil, err
+		}
+		if host.ExternalIp != "" && host.InternalIp != "" {
+			hosts = append(hosts, host)
+		}
+	}
+	return hosts, nil
 }

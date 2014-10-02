@@ -36,7 +36,7 @@ func bindingsCommandFunc(host string) {
 		return
 	}
 	for _, binding := range bindings {
-		fmt.Println(host + " port " + binding.String())
+		fmt.Println(host + ":" + binding.String())
 	}
 }
 
