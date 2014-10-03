@@ -9,3 +9,4 @@ servers:
     count: 2
     links:
     - consul-server
+  expose: ["3306:172.0.0.2:3306"]

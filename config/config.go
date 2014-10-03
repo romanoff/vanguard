@@ -50,6 +50,7 @@ func (self *Config) GetTiers() ([]*Tier, error) {
 type Server struct {
 	Label      string `yml:"label,omitempty"`
 	Hostname   string
+	Expose     []string `yml:"expose,omitempty"`
 	Containers []*Container
 }
 
