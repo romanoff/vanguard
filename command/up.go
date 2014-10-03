@@ -65,6 +65,16 @@ func upCommandFunc(c *cli.Context) {
 				manager.EnvVariables[server.Label] = host.InternalIp
 			}
 		}
+		if server.Expose == nil {
+			continue
+		}
+		for _, expose := range server.Expose {
+			arr := strings.Split(expose, ":")
+			if len(arr) != 3 {
+				continue
+			}
+			manager.CustomExpose(server.Hostname, arr[0], arr[1], arr[2])
+		}
 	}
 	for _, tier := range tiers {
 		for _, server := range tier.Servers {
@@ -130,7 +140,6 @@ func (self *ContainerManager) Manage(host string, container *config.Container) e
 }
 
 func (self *ContainerManager) Expose(host string, cont *config.Container, serverContainer *container.Container) error {
-	vClient := self.Clients[host]
 	if cont.Expose != nil && len(cont.Expose) > 0 {
 		for _, expose := range cont.Expose {
 			ports := strings.Split(expose, ":")
@@ -139,13 +148,26 @@ func (self *ContainerManager) Expose(host string, cont *config.Container, server
 			}
 			hostPort := ports[0]
 			containerPort := ports[1]
-			binding, err := vClient.Expose(hostPort, serverContainer.Ip, containerPort)
+			err := self.CustomExpose(host, hostPort, serverContainer.Ip, containerPort)
 			if err != nil {
 				return err
 			}
-			fmt.Println(host + ":" + binding.String())
 		}
 	}
+	return nil
+}
+
+func (self *ContainerManager) CustomExpose(host, port, remoteIp, remotePort string) error {
+	vClient := self.Clients[host]
+	if vClient == nil {
+		self.Clients[host] = client.NewClient(host)
+		vClient = self.Clients[host]
+	}
+	binding, err := vClient.Expose(port, remoteIp, remotePort)
+	if err != nil {
+		return err
+	}
+	fmt.Println(host + ":" + binding.String())
 	return nil
 }
 
