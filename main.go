@@ -20,6 +20,7 @@ func main() {
 		command.NewExposeCommand(),
 		command.NewBindingsCommand(),
 		command.NewHideCommand(),
+		command.NewHostCommand(),
 		command.NewHostsCommand(),
 	}
 	app.Run(os.Args)

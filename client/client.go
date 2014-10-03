@@ -182,3 +182,26 @@ func (self *Client) Hosts() ([]*host.Host, error) {
 	}
 	return hosts, nil
 }
+
+func (self *Client) Host() (*host.Host, error) {
+	url := "http://" + self.Hostname + ":2728/host"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, errors.New("vanguard agent is not running on host " + self.Hostname)
+	}
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var data map[string]interface{}
+	err = json.Unmarshal(content, &data)
+	if err == nil && data["error"] != nil {
+		return nil, errors.New(fmt.Sprintf("%v", data["error"]))
+	}
+	var h *host.Host
+	err = json.Unmarshal(content, &h)
+	if err != nil {
+		return nil, err
+	}
+	return h, nil
+}

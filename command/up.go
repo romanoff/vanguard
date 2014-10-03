@@ -43,6 +43,12 @@ func upCommandFunc(c *cli.Context) {
 		ShowTiers(tiers)
 		return
 	}
+	manager := &ContainerManager{
+		EnvVariables:       make(map[string]string),
+		Clients:            make(map[string]*client.Client),
+		RunningContainers:  make(map[string][]*container.Container),
+		UsedContainerNames: make(map[string][]string),
+	}
 	for _, server := range config.Servers {
 		c := client.NewClient(server.Hostname)
 		bindings, err := c.Bindings()
@@ -53,12 +59,12 @@ func upCommandFunc(c *cli.Context) {
 				return
 			}
 		}
-	}
-	manager := &ContainerManager{
-		EnvVariables:       make(map[string]string),
-		Clients:            make(map[string]*client.Client),
-		RunningContainers:  make(map[string][]*container.Container),
-		UsedContainerNames: make(map[string][]string),
+		if server.Label != "" {
+			host, err := c.Host()
+			if err == nil && host.InternalIp != "" {
+				manager.EnvVariables[server.Label] = host.InternalIp
+			}
+		}
 	}
 	for _, tier := range tiers {
 		for _, server := range tier.Servers {
