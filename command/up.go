@@ -7,6 +7,7 @@ import (
 	"github.com/romanoff/vanguard/client"
 	"github.com/romanoff/vanguard/config"
 	"github.com/romanoff/vanguard/container"
+	"regexp"
 	"strings"
 )
 
@@ -161,7 +162,7 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 				for _, variable := range cont.Variables {
 					values := strings.Split(variable, ":")
 					if len(values) == 2 {
-						variables[values[0]] = values[1]
+						variables[values[0]] = self.VariableValue(values[1])
 					}
 				}
 			}
@@ -190,6 +191,20 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 		}
 	}
 	return nil
+}
+
+var ipVariableRegexp *regexp.Regexp = regexp.MustCompile("ip\\((.*)\\)")
+
+func (self *ContainerManager) VariableValue(value string) string {
+	label := ipVariableRegexp.FindAllStringSubmatch(value, -1)
+	if label == nil {
+		return value
+	}
+	labelValue := label[0][1]
+	if self.EnvVariables[labelValue] != "" {
+		return self.EnvVariables[labelValue]
+	}
+	return value
 }
 
 func (self *ContainerManager) StopExtra(host string, cont *config.Container) error {
