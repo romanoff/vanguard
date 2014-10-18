@@ -64,6 +64,7 @@ type Container struct {
 	DNS       []string `yml:"dns,omitempty"`
 	Expose    []string `yml:"expose,omitempty"`
 	Variables []string `yml:"variables,omitempty"`
+	Volumes   []string `yml:"volumes,omitempty"`
 }
 
 func (self *Container) String() string {

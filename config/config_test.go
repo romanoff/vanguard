@@ -30,6 +30,10 @@ func TestParseConfig(t *testing.T) {
 	if variable != "ENV:production" {
 		t.Errorf("Expected first container to have variable 'ENV:production', but got %v", variable)
 	}
+	volume := config.Servers[0].Containers[0].Volumes[0]
+	if volume != "/data/volume:/data" {
+		t.Errorf("Expected first container to have '/data/volume:/data' volume, but got %v", volume)
+	}
 }
 
 func TestGetTiers(t *testing.T) {

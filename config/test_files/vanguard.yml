@@ -5,6 +5,7 @@ servers:
   - image: consul-server
     expose: ["8500:8500"]
     variables: ["ENV:production"]
+    volumes: ["/data/volume:/data"]
   - image: user-management
     count: 2
     links:
