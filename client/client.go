@@ -20,7 +20,8 @@ type Client struct {
 	Hostname string
 }
 
-func (self *Client) Run(label string, name string, tag string, imageId string, variables map[string]string, dns []string) (*container.Container, error) {
+func (self *Client) Run(label string, name string, tag string, imageId string,
+	variables map[string]string, dns []string, volumes []string) (*container.Container, error) {
 	values := url.Values{"label": {label}, "name": {name}, "tag": {tag}, "image_id": {imageId}}
 	if variables != nil {
 		for key, value := range variables {
@@ -32,6 +33,11 @@ func (self *Client) Run(label string, name string, tag string, imageId string, v
 	if dns != nil {
 		for _, dnsAddress := range dns {
 			values.Add("dns", dnsAddress)
+		}
+	}
+	if volumes != nil {
+		for _, volume := range volumes {
+			values.Add("volumes", volume)
 		}
 	}
 	resp, err := http.PostForm("http://"+self.Hostname+":2728/containers", values)

@@ -22,6 +22,11 @@ func NewRunCommand() cli.Command {
 				Value: &cli.StringSlice{},
 				Usage: "dns servers for container",
 			},
+			cli.StringSliceFlag{
+				Name:  "v",
+				Value: &cli.StringSlice{},
+				Usage: "volume for container",
+			},
 		},
 		Action: func(c *cli.Context) {
 			runCommandFunc(c)
@@ -51,7 +56,11 @@ func runCommandFunc(c *cli.Context) {
 	for _, dns := range c.StringSlice("dns") {
 		dnsServers = append(dnsServers, dns)
 	}
-	container, err := vClient.Run(name, name, "", "", variables, dnsServers)
+	volumes := []string{}
+	for _, volume := range c.StringSlice("v") {
+		volumes = append(volumes, volume)
+	}
+	container, err := vClient.Run(name, name, "", "", variables, dnsServers, volumes)
 	if err != nil {
 		fmt.Println(err)
 		return
