@@ -2,6 +2,7 @@ package container
 
 import (
 	"errors"
+	dockerCli "github.com/docker/docker/api/client"
 	"github.com/fsouza/go-dockerclient"
 	"log"
 	"os"
@@ -71,7 +72,7 @@ func (self *Container) Run() error {
 	if self.ImageId == "" {
 		self.ImageId, err = GetImageId(self.Name, self.Tag)
 		if err != nil && self.Dockerfile != "" {
-			self.ImageId, err = BuildContainer(self.Dockerfile, self.Name)
+			self.ImageId, err = BuildImage(self.Dockerfile, self.Name)
 		}
 		if err != nil {
 			FreeIp(self.Ip)
@@ -179,6 +180,11 @@ func GetImageId(name string, tag string) (string, error) {
 	return image.ID, nil
 }
 
-func BuildContainer(dockerfile string, name string) (string, error) {
-	return "", nil
+func BuildImage(dockerfile string, name string) (string, error) {
+	cli := dockerCli.NewDockerCli(os.Stdin, os.Stdout, os.Stderr, nil, "unix", "/var/run/docker.sock", nil)
+	err := cli.CmdBuild("-t", name, strings.TrimSuffix(dockerfile, "Dockerfile"))
+	if err != nil {
+		return "", err
+	}
+	return GetImageId(name, "")
 }
