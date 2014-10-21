@@ -3,13 +3,14 @@ package config
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type Config struct {
 	Application string
 	Servers     []*Server
+	Remote      *Remote
 }
 
 func (self *Config) GetTiers() ([]*Tier, error) {
@@ -52,6 +53,20 @@ type Server struct {
 	Hostname   string
 	Expose     []string `yml:"expose,omitempty"`
 	Containers []*Container
+}
+
+type Remote struct {
+	Type       string        `yml:"type,omitempty"`
+	Bucket     string        `yml:"bucket,omitempty"`
+	Access_Key string        `yml:"access_key,omitempty"`
+	Secret_Key string        `yml:"secret_key,omitempty"`
+	Region     string        `yml:"region,omitempty"`
+	Files      []*RemoteFile `yml:"files,omitempty"`
+}
+
+type RemoteFile struct {
+	Name string `yml:"name,omitempty"`
+	Path string `yml:"path,omitempty"`
 }
 
 type Container struct {

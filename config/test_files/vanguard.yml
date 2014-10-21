@@ -13,3 +13,12 @@ servers:
     links:
     - consul-server
   expose: ["3306:172.0.0.2:3306"]
+remote:
+  type: s3
+  bucket: bucket
+  access_key: access
+  secret_key: secret
+  region: us
+  files:
+  - name: 'sphinx.tar.bz2'
+    path: 'sphinx'

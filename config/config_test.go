@@ -58,3 +58,39 @@ func TestGetTiers(t *testing.T) {
 		t.Errorf("Expected to get 3 tiers, but got %v", len(tiers))
 	}
 }
+
+func TestParseConfigRemote(t *testing.T) {
+	config, err := ParseConfig("test_files/vanguard.yml")
+	if err != nil {
+		t.Errorf("Expected to not get error while parsing vanguard.yml, but got %v", err)
+	}
+	remote := config.Remote
+	if remote == nil {
+		t.Error("Expected to parse vanguard.yml remote, but got nil")
+	}
+	if remote.Type != "s3" {
+		t.Errorf("Expected to get remote type 's3', but got '%v' ", remote.Type)
+	}
+	if remote.Bucket != "bucket" {
+		t.Errorf("Expected to get remote bucket 'bucket', but got '%v' ", remote.Bucket)
+	}
+	if remote.Access_Key != "access" {
+		t.Errorf("Expected to get remote access key 'access', but got '%v' ", remote.Access_Key)
+	}
+	if remote.Secret_Key != "secret" {
+		t.Errorf("Expected to get remote access key 'secret', but got '%v' ", remote.Secret_Key)
+	}
+	if remote.Region != "us" {
+		t.Errorf("Expected to get remote region 'us', but got '%v' ", remote.Region)
+	}
+	if len(remote.Files) != 1 {
+		t.Errorf("Expected to get 1 remote file, but got '%v' ", len(remote.Files))
+	}
+	remoteFile := remote.Files[0]
+	if remoteFile.Name != "sphinx.tar.bz2" {
+		t.Errorf("Expected to get 'sphinx.tar.bz2' remote file name, but got %v", remoteFile.Name)
+	}
+	if remoteFile.Path != "sphinx" {
+		t.Errorf("Expected to get 'sphinx' remote file path, but got '%v'", remoteFile.Path)
+	}
+}
