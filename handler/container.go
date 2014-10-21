@@ -12,6 +12,7 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 	imageId := r.FormValue("image_id")
 	label := r.FormValue("label")
 	command := r.FormValue("command")
+	dockerfile := r.FormValue("dockerfile")
 	variables := make(map[string]string)
 	dns := make([]string, 0, 0)
 	volumes := make([]string, 0, 0)
@@ -39,6 +40,7 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 		DNS:       dns,
 		Volumes:   volumes,
 		Command:   command,
+		Dockerfile: dockerfile,
 	}
 	err := c.Run()
 	if err == nil {

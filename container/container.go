@@ -23,6 +23,7 @@ type Container struct {
 	DNS         []string          `json:"dns,omitempty"`
 	Volumes     []string          `json:"volumes,omitempty"`
 	Command     string            `json:"command,omitempty"`
+	Dockerfile  string            `json:"dockerfile,omitempty"`
 }
 
 func (self *Container) LabelName() string {
@@ -69,6 +70,9 @@ func (self *Container) Run() error {
 	}
 	if self.ImageId == "" {
 		self.ImageId, err = GetImageId(self.Name, self.Tag)
+		if err != nil && self.Dockerfile != "" {
+			self.ImageId, err = BuildContainer(self.Dockerfile, self.Name)
+		}
 		if err != nil {
 			FreeIp(self.Ip)
 			return err
@@ -173,4 +177,8 @@ func GetImageId(name string, tag string) (string, error) {
 		return "", err
 	}
 	return image.ID, nil
+}
+
+func BuildContainer(dockerfile string, name string) (string, error) {
+	return "", nil
 }

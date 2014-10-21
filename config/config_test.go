@@ -34,6 +34,15 @@ func TestParseConfig(t *testing.T) {
 	if volume != "/data/volume:/data" {
 		t.Errorf("Expected first container to have '/data/volume:/data' volume, but got %v", volume)
 	}
+	command := config.Servers[0].Containers[0].Command
+	if command != "/bin/bash" {
+		t.Errorf("Expected to get '/bin/bash' as command, but got %v", command)
+	}
+	dockerfile := config.Servers[0].Containers[0].Dockerfile
+	expected := "/home/user/project/Dockerfile"
+	if dockerfile != expected {
+		t.Errorf("Expected to get '%v' as dockerfile, but got %v", expected, dockerfile)
+	}
 }
 
 func TestGetTiers(t *testing.T) {

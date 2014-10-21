@@ -6,6 +6,8 @@ servers:
     expose: ["8500:8500"]
     variables: ["ENV:production"]
     volumes: ["/data/volume:/data"]
+    command: '/bin/bash'
+    dockerfile: '/home/user/project/Dockerfile'
   - image: user-management
     count: 2
     links:

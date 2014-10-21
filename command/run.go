@@ -69,7 +69,7 @@ func runCommandFunc(c *cli.Context) {
 	for _, volume := range c.StringSlice("v") {
 		volumes = append(volumes, volume)
 	}
-	container, err := vClient.Run(name, name, "", "", variables, dnsServers, volumes, command)
+	container, err := vClient.Run(name, name, "", "", variables, dnsServers, volumes, command, "")
 	if err != nil {
 		fmt.Println(err)
 		return

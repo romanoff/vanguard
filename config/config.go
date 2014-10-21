@@ -55,17 +55,18 @@ type Server struct {
 }
 
 type Container struct {
-	Label     string   `yml:"label,omitempty"`
-	Image     string   `yml:"image,omitempty"`
-	Tag       string   `yml:"tag,omitempty"`
-	ImageId   string   `yml:"image_id,omitempty"`
-	Count     int      `yml:"count,omitempty"`
-	Links     []string `yml:"links,omitempty"`
-	DNS       []string `yml:"dns,omitempty"`
-	Expose    []string `yml:"expose,omitempty"`
-	Variables []string `yml:"variables,omitempty"`
-	Volumes   []string `yml:"volumes,omitempty"`
-	Command   string   `yml:"command,omitempty"`
+	Label      string   `yml:"label,omitempty"`
+	Image      string   `yml:"image,omitempty"`
+	Tag        string   `yml:"tag,omitempty"`
+	ImageId    string   `yml:"image_id,omitempty"`
+	Count      int      `yml:"count,omitempty"`
+	Links      []string `yml:"links,omitempty"`
+	DNS        []string `yml:"dns,omitempty"`
+	Expose     []string `yml:"expose,omitempty"`
+	Variables  []string `yml:"variables,omitempty"`
+	Volumes    []string `yml:"volumes,omitempty"`
+	Command    string   `yml:"command,omitempty"`
+	Dockerfile string   `yml:"dockerfile,omitempty"`
 }
 
 func (self *Container) String() string {
