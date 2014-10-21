@@ -22,6 +22,7 @@ func main() {
 		command.NewHideCommand(),
 		command.NewHostCommand(),
 		command.NewHostsCommand(),
+		command.NewRemoteCommand(),
 	}
 	app.Run(os.Args)
 }
