@@ -194,7 +194,7 @@ func (self *ContainerManager) Launch(host string, cont *config.Container) error 
 					}
 				}
 			}
-			serverContainer, err := vClient.Run(cont.Name(), cont.Image, cont.Tag, cont.ImageId, variables, cont.DNS, cont.Volumes)
+			serverContainer, err := vClient.Run(cont.Name(), cont.Image, cont.Tag, cont.ImageId, variables, cont.DNS, cont.Volumes, cont.Command)
 			if err != nil {
 				return err
 			}

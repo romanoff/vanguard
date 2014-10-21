@@ -65,6 +65,7 @@ type Container struct {
 	Expose    []string `yml:"expose,omitempty"`
 	Variables []string `yml:"variables,omitempty"`
 	Volumes   []string `yml:"volumes,omitempty"`
+	Command   string   `yml:"command,omitempty"`
 }
 
 func (self *Container) String() string {

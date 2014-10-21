@@ -22,6 +22,7 @@ type Container struct {
 	CreatedAt   time.Time         `json:"created_at,omitempty"`
 	DNS         []string          `json:"dns,omitempty"`
 	Volumes     []string          `json:"volumes,omitempty"`
+	Command     string            `json:"command,omitempty"`
 }
 
 func (self *Container) LabelName() string {
@@ -98,6 +99,9 @@ func (self *Container) runWithWeave() error {
 		}
 	}
 	args = append(args, self.ImageId)
+	if self.Command != "" {
+		args = append(args, self.Command)
+	}
 	containerId, err := exec.Command("weave", args...).Output()
 	if err == nil {
 		self.ContainerId = strings.TrimSpace(string(containerId))

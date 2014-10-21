@@ -11,11 +11,12 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 	tag := r.FormValue("tag")
 	imageId := r.FormValue("image_id")
 	label := r.FormValue("label")
+	command := r.FormValue("command")
 	variables := make(map[string]string)
 	dns := make([]string, 0, 0)
 	volumes := make([]string, 0, 0)
 	for key, values := range r.Form {
-		if key != "label" && key != "name" && key != "tag" && key != "image_id" && key != "dns" && key != "volumes" {
+		if key != "label" && key != "name" && key != "tag" && key != "image_id" && key != "dns" && key != "volumes" && key != "command" {
 			variables[key] = values[0]
 		}
 		if key == "dns" {
@@ -37,6 +38,7 @@ func ContainerCreate(w http.ResponseWriter, r *http.Request) {
 		Variables: variables,
 		DNS:       dns,
 		Volumes:   volumes,
+		Command:   command,
 	}
 	err := c.Run()
 	if err == nil {

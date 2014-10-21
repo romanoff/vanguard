@@ -41,8 +41,17 @@ func runCommandFunc(c *cli.Context) {
 		return
 	}
 	hostname := "127.0.0.1"
+	command := ""
 	if len(c.Args()) > 1 {
-		hostname = getHostname(c.Args()[1])
+		firstArgument := c.Args()[1]
+		if !strings.Contains(firstArgument, "/") {
+			hostname = getHostname(c.Args()[1])
+		} else {
+			command = firstArgument
+			if len(c.Args()) > 2 {
+				hostname = getHostname(c.Args()[2])
+			}
+		}
 	}
 	vClient := client.NewClient(hostname)
 	variables := make(map[string]string)
@@ -60,7 +69,7 @@ func runCommandFunc(c *cli.Context) {
 	for _, volume := range c.StringSlice("v") {
 		volumes = append(volumes, volume)
 	}
-	container, err := vClient.Run(name, name, "", "", variables, dnsServers, volumes)
+	container, err := vClient.Run(name, name, "", "", variables, dnsServers, volumes, command)
 	if err != nil {
 		fmt.Println(err)
 		return

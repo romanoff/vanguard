@@ -21,11 +21,11 @@ type Client struct {
 }
 
 func (self *Client) Run(label string, name string, tag string, imageId string,
-	variables map[string]string, dns []string, volumes []string) (*container.Container, error) {
+	variables map[string]string, dns []string, volumes []string, command string) (*container.Container, error) {
 	values := url.Values{"label": {label}, "name": {name}, "tag": {tag}, "image_id": {imageId}}
 	if variables != nil {
 		for key, value := range variables {
-			if key != "label" && key != "name" && key != "tag" && key != "image_id" {
+			if key != "label" && key != "name" && key != "tag" && key != "image_id" && key != "dns" && key != "volumes" && key != "command" {
 				values.Add(key, value)
 			}
 		}
@@ -39,6 +39,9 @@ func (self *Client) Run(label string, name string, tag string, imageId string,
 		for _, volume := range volumes {
 			values.Add("volumes", volume)
 		}
+	}
+	if command != "" {
+		values.Add("command", command)
 	}
 	resp, err := http.PostForm("http://"+self.Hostname+":2728/containers", values)
 	if err != nil {
