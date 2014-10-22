@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/romanoff/vanguard/remote"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
@@ -46,6 +47,17 @@ func (self *Config) GetTiers() ([]*Tier, error) {
 		}
 	}
 	return tiers, nil
+}
+
+func (self *Config) GetRemote() (remote.Remote, error) {
+	if self.Remote == nil {
+		return nil, errors.New("No remote found")
+	}
+	r := self.Remote
+	if r.Type != "s3" {
+		return nil, errors.New("Right now only s3 remote is supported")
+	}
+	return &remote.S3{Bucket: r.Bucket, AccessKey: r.Access_Key, SecretKey: r.Secret_Key, Region: r.Region}, nil
 }
 
 type Server struct {
