@@ -205,6 +205,7 @@ func (self *Tier) String() string {
 
 func ParseConfig(path string) (*Config, error) {
 	content, err := ioutil.ReadFile(path)
+	content = []byte(os.ExpandEnv(string(content)))
 	if err != nil {
 		return nil, err
 	}
