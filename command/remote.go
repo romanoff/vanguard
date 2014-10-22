@@ -6,6 +6,7 @@ import (
 	"github.com/romanoff/vanguard/config"
 	"github.com/romanoff/vanguard/remote"
 	"path/filepath"
+	"strings"
 )
 
 func NewRemoteCommand() cli.Command {
@@ -54,6 +55,9 @@ func PushFileToRemote(c *cli.Context) {
 	destination := filepath.Base(path)
 	if len(c.Args()) > 1 {
 		destination = c.Args()[1]
+		if strings.HasSuffix(destination, "/") {
+			destination += filepath.Base(path)
+		}
 	}
 	r, err := getRemote()
 	if err != nil {

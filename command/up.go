@@ -20,6 +20,10 @@ func NewUpCommand() cli.Command {
 				Name:  "dry",
 				Usage: "show containers lunching process by tiers",
 			},
+			cli.BoolFlag{
+				Name:  "replace-files",
+				Usage: "force replace local files with remote files",
+			},
 		},
 		Action: func(c *cli.Context) {
 			upCommandFunc(c)
@@ -33,8 +37,12 @@ func upCommandFunc(c *cli.Context) {
 		fmt.Println(err)
 		return
 	}
-
 	tiers, err := config.GetTiers()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = config.PullRemoteFiles(c.Bool("replace-files"))
 	if err != nil {
 		fmt.Println(err)
 		return

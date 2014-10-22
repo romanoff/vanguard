@@ -6,6 +6,9 @@ import (
 	"github.com/romanoff/vanguard/remote"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 type Config struct {
@@ -60,6 +63,34 @@ func (self *Config) GetRemote() (remote.Remote, error) {
 	return &remote.S3{Bucket: r.Bucket, AccessKey: r.Access_Key, SecretKey: r.Secret_Key, Region: r.Region}, nil
 }
 
+func (self *Config) PullRemoteFiles(replaceExisting bool) error {
+	if self.Remote == nil {
+		return nil
+	}
+	if self.Remote.Files == nil || len(self.Remote.Files) == 0 {
+		return nil
+	}
+	r, err := self.GetRemote()
+	if err != nil {
+		return err
+	}
+	files := self.Remote.Files
+	for _, file := range files {
+		destination := file.GetDestination()
+		if !replaceExisting {
+			if _, err := os.Stat(destination); err == nil {
+				continue
+			}
+		}
+		fmt.Printf("downloading remote file %v into %v\n", file.Name, destination)
+		err = r.Pull(file.Name, destination)
+		if err != nil {
+			return errors.New(fmt.Sprintf("Error while downloading file from remote '%v' to '%v': %v", file.Name, destination, err))
+		}
+	}
+	return nil
+}
+
 type Server struct {
 	Label      string `yml:"label,omitempty"`
 	Hostname   string
@@ -79,6 +110,14 @@ type Remote struct {
 type RemoteFile struct {
 	Name string `yml:"name,omitempty"`
 	Path string `yml:"path,omitempty"`
+}
+
+func (self *RemoteFile) GetDestination() string {
+	destination := self.Path
+	if strings.HasSuffix(destination, "/") || destination == ""{
+		destination += filepath.Base(self.Name)
+	}
+	return destination
 }
 
 type Container struct {
