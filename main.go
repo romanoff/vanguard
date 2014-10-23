@@ -23,6 +23,8 @@ func main() {
 		command.NewHostCommand(),
 		command.NewHostsCommand(),
 		command.NewRemoteCommand(),
+		command.NewBuildCommand(),
+		command.NewRebuildCommand(),
 	}
 	app.Run(os.Args)
 }
